@@ -1,17 +1,97 @@
-<div class="hero min-h-screen bg-base-200">
-  <div class="hero-content text-center">
-    <div class="max-w-md">
-      <h1 class="text-5xl font-bold">Daisy UI</h1>
-      <p class="py-6">The official PocketPages starter kit.</p>
-      <div class="mockup-code text-left">
-        <pre data-prefix="$"><code>code .</code></pre>
-      </div>
-      <div>
-        Ready to rumble with:
-        <ul>
-          <li>Daisy UI</li>
-        </ul>
-      </div>
+<h1 class="text-5xl font-bold">Scrim</h1>
+
+<script>
+  const client = new PocketBase(`/`)
+  client.collection('chats').subscribe('*', function (e) {
+    console.log(e.action)
+    console.log(e.record)
+  })
+  const TEAM_COLOR = {
+    red: 'bg-red-400',
+    blue: 'bg-blue-400',
+  }
+</script>
+
+<div
+  x-data="{
+    messages: [
+    ]
+}"
+  x-init="
+client.collection('chats').getList(1, 50, {}).then((res) => {
+  messages.push(...res.items)
+  console.log({messages})
+});
+client.collection('chats').subscribe('*', function (e) {
+  messages.push(e.record)
+})"
+>
+  <template x-for="(message) in messages">
+    <div
+      :class="message.side === 'red' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'"
+      class="p-2 rounded-lg shadow-md m-2 flex items-center space-x-2"
+    >
+      <div class="font-bold" x-text="message.name"></div>
+      <div class="text-sm italic">says</div>
+      <div x-text="message.message" class="mt-1"></div>
     </div>
-  </div>
+  </template>
+
+  <form
+    hx-post="/say"
+    hx-trigger="submit"
+    hx-swap="none"
+    @htmx:before-request.camel.document="message = ''; hideFields = true"
+    x-data="{ 
+    team: 'Red', 
+    message: '',
+    hideFields: false,
+    
+   }"
+    class="p-4 bg-base-200 rounded-lg shadow-lg"
+  >
+    <div class="form-control mb-4" x-show="!hideFields">
+      <label for="name" class="label">
+        <span class="label-text">Your Name:</span>
+      </label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        required
+        maxlength="20"
+        class="input input-bordered w-full"
+      />
+    </div>
+
+    <div class="form-control mb-4" x-show="!hideFields">
+      <label for="team" class="label">
+        <span class="label-text">Team:</span>
+      </label>
+      <button
+        type="button"
+        @click="team = (team === 'Red') ? 'Blue' : 'Red'"
+        :class="`btn btn-outline ${TEAM_COLOR[team.toLowerCase()]||''}`"
+        x-text="team"
+      ></button>
+      <input type="hidden" id="team" name="team" :value="team" />
+    </div>
+
+    <div class="form-control mb-4">
+      <label for="message" class="label">
+        <span class="label-text">Your Message:</span>
+      </label>
+      <input
+        type="text"
+        id="message"
+        name="message"
+        required
+        maxlength="100"
+        :class="`input input-bordered w-full ${team === 'Red' ? ' bg-red-400' : 'bg-blue-400'}`"
+        x-model="message"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full">Send</button>
+  </form>
 </div>

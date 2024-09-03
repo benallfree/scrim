@@ -1,0 +1,14 @@
+<% 
+dbg(params) 
+const data = $apis.requestInfo(ctx).data
+dbg({data})
+const collection = $app.dao().findCollectionByNameOrId("chats")
+const record = new Record(collection)
+const form = new RecordUpsertForm($app, record)
+form.loadData(data)
+form.submit()
+
+%>
+{
+    "ok": true
+}
