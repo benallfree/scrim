@@ -7,15 +7,15 @@
     console.log(e.record)
   })
   const TEAM_COLOR = {
-    red: 'bg-red-400',
-    blue: 'bg-blue-400',
+    Red: 'bg-red-400',
+    Blue: 'bg-blue-400',
   }
 </script>
 
 <div
   x-data="{
     messages: [
-    ]
+    ],
 }"
   x-init="
 client.collection('chats').getList(1, 50, {}).then((res) => {
@@ -28,7 +28,7 @@ client.collection('chats').subscribe('*', function (e) {
 >
   <template x-for="(message) in messages">
     <div
-      :class="message.side === 'red' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'"
+      :class="TEAM_COLOR[message.team]"
       class="p-2 rounded-lg shadow-md m-2 flex items-center space-x-2"
     >
       <div class="font-bold" x-text="message.name"></div>
@@ -71,7 +71,7 @@ client.collection('chats').subscribe('*', function (e) {
       <button
         type="button"
         @click="team = (team === 'Red') ? 'Blue' : 'Red'"
-        :class="`btn btn-outline ${TEAM_COLOR[team.toLowerCase()]||''}`"
+        :class="`btn btn-outline ${TEAM_COLOR[team]||''}`"
         x-text="team"
       ></button>
       <input type="hidden" id="team" name="team" :value="team" />
